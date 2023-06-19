@@ -1,0 +1,41 @@
+﻿@page "/updatecategory/{Id:int}"
+@inject IService<CategoryDto,CategoryCreateDto> CategoryService
+@inject NavigationManager NavigationManager
+
+<h3>Update Category</h3>
+
+<EditForm Model="@_category" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="_category.Name" />
+        <ValidationMessage For="@(() => _category.Name)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private CategoryDto _category;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _category = await CategoryService.GetByIdAsync(Id);
+    }
+
+    private async void HandleValidSubmit()
+    {
+        var updateCategory = new CategoryCreateDto
+            {
+                Name = _category.Name
+            };
+        await CategoryService.UpdateAsync(Id, updateCategory);
+        NavigationManager.NavigateTo("/categories");
+    }
+}

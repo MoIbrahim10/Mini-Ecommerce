@@ -1,0 +1,62 @@
+﻿@page "/categories"
+@inject IService<CategoryDto,CategoryCreateDto> CategoryService
+@inject NavigationManager NavigationManager
+
+<h3>Category List</h3>
+
+@if (categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button class="btn btn-success" @onclick="CreateCategory">Create New Category</button>
+
+    <table class='table'>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in categories)
+            {
+                <tr>
+                    <td>@category.Id</td>
+                    <a href="categorydetails/@category.Id">@category.Name</a>
+                    <td>
+                        <button class="btn btn-primary" @onclick="(() => UpdateCategory(category.Id))">Update</button>
+                        <button class="btn btn-danger" @onclick="(() => DeleteCategory(category.Id))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+    private IList<CategoryDto> categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = (await CategoryService.GetAllAsync()).ToList();
+    }
+    private void UpdateCategory(int categoryId)
+    {
+        NavigationManager.NavigateTo($"/updatecategory/{categoryId}");
+    }
+
+    private async Task DeleteCategory(int categoryId)
+    {
+        await CategoryService.DeleteAsync(categoryId);
+        categories = (await CategoryService.GetAllAsync()).ToList();
+    }
+
+    private void CreateCategory()
+    {
+        NavigationManager.NavigateTo("/createcategory");
+    }
+}

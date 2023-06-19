@@ -1,0 +1,95 @@
+﻿@page "/products"
+@inject IService<ProductDto,ProductCreateDto> ProductService
+@inject IService<CategoryDto,CategoryCreateDto> CategoryService
+@inject NavigationManager NavigationManager
+
+<h1>Product List</h1>
+
+
+<p>
+    Filter by Category:
+    <select @onchange="OnCategoryChanged">
+        <option value="0">ALL</option>
+        @if (categories != null)
+        {
+            @foreach (var category in categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        }
+    </select>
+</p>
+
+
+@if (products == null || categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <button class="btn btn-success" @onclick="(() => AddProduct())">Add New Product</button>
+
+    <div class="row">
+        @foreach (var product in filteredProducts)
+        {
+            <div class="col-sm-4">
+                <div class="card">
+                    <a href="productdetails/@product.Id"><img class="card-img-top" src="@product.Image" alt="@product.Name" style="object-fit: contain; width: 100%; height: 200px;" /></a>
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <p class="card-text">@product.Description</p>
+                        <button class="btn btn-primary" @onclick="(() => UpdateProduct(product.Id))">Update</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteProduct(product.Id)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+@code {
+    private IList<ProductDto> products;
+    private IList<ProductDto> filteredProducts;
+    private IList<CategoryDto> categories;
+    private int selectedCategoryId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = (await ProductService.GetAllAsync()).ToList();
+        categories = (await CategoryService.GetAllAsync()).ToList();
+        filteredProducts = products;
+    }
+
+    private void OnCategoryChanged(ChangeEventArgs e)
+    {
+        selectedCategoryId = int.Parse(e.Value.ToString());
+        if (selectedCategoryId == 0)
+        {
+            filteredProducts = products;
+        }
+        else
+        {
+            filteredProducts = products.Where(p => p.CategoryId == selectedCategoryId).ToList();
+        }
+    }
+
+
+    private void AddProduct()
+    {
+        NavigationManager.NavigateTo("/AddProduct");
+    }
+
+    private void UpdateProduct(int productId)
+    {
+        NavigationManager.NavigateTo($"/updateproduct/{productId}");
+    }
+
+    private async void DeleteProduct(int productId)
+    {
+        await ProductService.DeleteAsync(productId);
+        products = (await ProductService.GetAllAsync()).ToList();
+        StateHasChanged();
+    }
+}
+

@@ -1,0 +1,32 @@
+﻿@page "/productdetails/{Id:int}"
+@inject IService<ProductDto,ProductCreateDto> ProductService
+
+<h3>Product Details</h3>
+
+@if (product == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <h4>@product.Name</h4>
+        <p>Description: @product.Description</p>
+        <p>Price: @product.Price</p>
+        <p><img src="@product.Image" alt="@product.Name" style="width:200px;height:auto;" /></p>
+        <p>Category ID: @product.CategoryId</p>
+        <p>Category Name: @product.CategoryName</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ProductDto product;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await ProductService.GetByIdAsync(Id);
+    }
+}

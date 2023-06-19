@@ -1,0 +1,46 @@
+﻿@page "/addproduct"
+@inject IService<ProductDto,ProductCreateDto> ProductService
+@inject NavigationManager NavigationManager
+
+<h3 class="text-light">Add Product</h3>
+
+<EditForm Model="newProduct" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name" class="text-light">Name</label>
+        <InputText id="name" @bind-Value="newProduct.Name" placeholder="Name" class="form-control" />
+        <ValidationMessage For="() => newProduct.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="description" class="text-light">Description</label>
+        <InputText id="description" @bind-Value="newProduct.Description" placeholder="Description" class="form-control" />
+        <ValidationMessage For="() => newProduct.Description" />
+    </div>
+
+    <div class="form-group">
+        <label for="price" class="text-light">Price</label>
+        <InputNumber id="price" @bind-Value="newProduct.Price" placeholder="Price" class="form-control" />
+        <ValidationMessage For="() => newProduct.Price" />
+    </div>
+
+    <div class="form-group">
+        <label for="image" class="text-light">Image</label>
+        <InputText id="image" @bind-Value="newProduct.Image" placeholder="Image" class="form-control" />
+        <ValidationMessage For="() => newProduct.Image" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Product</button>
+</EditForm>
+
+@code {
+    private ProductCreateDto newProduct = new ProductCreateDto();
+
+    private async void HandleValidSubmit()
+    {
+        await ProductService.AddAsync(newProduct);
+        NavigationManager.NavigateTo("/products");
+    }
+}

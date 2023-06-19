@@ -1,0 +1,28 @@
+﻿@page "/categorydetails/{Id:int}"
+@inject IService<CategoryDto,CategoryCreateDto> CategoryService
+
+<h3>Category Details</h3>
+
+@if (_category == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="form-group">
+        <label for="name">Name</label>
+        <p>@_category.Name</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private CategoryDto _category;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _category = await CategoryService.GetByIdAsync(Id);
+    }
+}
